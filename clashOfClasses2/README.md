@@ -39,8 +39,8 @@ A timetable and class-clash management project. This repository contains the exi
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/<YOUR_GITHUB_USERNAME>/<YOUR_REPOSITORY>.git
-cd <YOUR_REPOSITORY>
+git clone [https://github.com/<YOUR_GITHUB_USERNAME>/<YOUR_REPOSITORY>.git](https://github.com/hi-iiam-Dishant/ClashOfClasses)
+cd COC
 ```
 
 ### 2. Export your existing database
