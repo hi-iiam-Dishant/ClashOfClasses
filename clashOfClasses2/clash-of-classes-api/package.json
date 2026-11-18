@@ -1,0 +1,28 @@
+{
+  "name": "clash-of-classes-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon src/index.js",
+    "start": "node src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@fastify/cors": "^11.4.1",
+    "@opentelemetry/auto-instrumentations-node": "^0.83.0",
+    "@opentelemetry/sdk-node": "^0.301.1",
+    "dotenv": "^18.0.9",
+    "fastify": "^5.12.8",
+    "fastify-metrics": "^15.0.1",
+    "mysql2": "^3.24.6",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.11"
+  }
+}

@@ -1,0 +1,75 @@
+name: clash-of-classes
+
+services:
+  db:
+    image: ${MARIADB_IMAGE:-mariadb:13.0.2}
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: ${DB_NAME:-clash_of_classes}
+      MARIADB_USER: ${DB_USER:-coc_app}
+      MARIADB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?Set DB_ROOT_PASSWORD in .env}
+    volumes:
+      - mariadb_data:/var/lib/mysql
+      # SQL files are executed in lexical order only when mariadb_data is empty.
+      - ./database/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    networks:
+      - coc-internal
+
+  api:
+    build:
+      context: ./clash-of-classes-api
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USER: ${DB_USER:-coc_app}
+      DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
+      DB_NAME: ${DB_NAME:-clash_of_classes}
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    networks:
+      - coc-internal
+
+  web:
+    build:
+      context: .
+      dockerfile: clientside/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "${APP_PORT:-8080}:80"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    networks:
+      - coc-internal
+
+volumes:
+  mariadb_data:
+    name: clash-of-classes-mariadb-data
+
+networks:
+  coc-internal:
+    name: clash-of-classes-internal
+    driver: bridge
